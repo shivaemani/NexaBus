@@ -1,0 +1,2580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>TrainNexa - India's #1 Train Booking Service</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #dc2626;
+            --secondary-color: #991b1b;
+            --accent-color: #f59e0b;
+            --irctc-red: #ed1c24;
+            --success-color: #10b981;
+            --info-color: #3b82f6;
+            --text-light: #ffffff;
+            --text-dark: #1f2937;
+            --bg-light: #fef2f2;
+            --shadow: 0 10px 40px rgba(220, 38, 38, 0.2);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 50%, #7f1d1d 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+        }
+
+        @keyframes trainMove {
+            0% { transform: translateX(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100vw); opacity: 0; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+            40%, 43% { transform: translate3d(0,-15px,0); }
+            70% { transform: translate3d(0,-8px,0); }
+            90% { transform: translate3d(0,-3px,0); }
+        }
+
+        @keyframes toastSlide {
+            0% { transform: translateX(100%); opacity: 0; }
+            10% { transform: translateX(0); opacity: 1; }
+            90% { transform: translateX(0); opacity: 1; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+
+        .animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+        .animate-slide-down { animation: slideInDown 0.8s ease-out forwards; }
+        .animate-bounce-in { animation: bounceIn 0.8s ease-out forwards; }
+
+        /* ========== PAGE LOADER ========== */
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-train {
+            font-size: 4rem;
+            color: white;
+            animation: trainMove 2s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+
+        .loader-text {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* ========== HEADER ========== */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .logo i {
+            color: var(--irctc-red);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 25px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links a:hover {
+            background: var(--bg-light);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .login-btn-header {
+            background: linear-gradient(135deg, var(--irctc-red), var(--primary-color)) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(237, 28, 36, 0.3);
+        }
+
+        .login-btn-header:hover {
+            box-shadow: 0 6px 20px rgba(237, 28, 36, 0.5) !important;
+            transform: translateY(-3px) !important;
+        }
+
+        /* ========== HERO SECTION ========== */
+        .hero-section {
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: -60px;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background-image: url('https://t4.ftcdn.net/jpg/06/63/77/79/360_F_663777951_MobkaO3tI0VnbZ97XSx7bNmgcFUbryVJ.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.35);
+            z-index: 0;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, 
+                rgba(220, 38, 38, 0.6) 0%, 
+                rgba(153, 27, 27, 0.8) 50%,
+                rgba(127, 29, 29, 1) 100%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            padding: 60px 20px;
+            max-width: 900px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: bounceIn 1s ease-out 0.3s backwards;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            opacity: 0.95;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .irctc-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--irctc-red), #ff6b6b);
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            box-shadow: 0 6px 20px rgba(237, 28, 36, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        /* ========== SEARCH FORM ========== */
+        .search-section {
+            position: relative;
+            z-index: 10;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            animation: fadeInUp 1s ease-out 0.5s backwards;
+        }
+
+        .search-container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            padding: 45px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label i { color: var(--irctc-red); }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+            background: #fafafa;
+        }
+
+        .form-input:focus {
+            border-color: var(--irctc-red);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(237, 28, 36, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .search-btn {
+            grid-column: 1 / -1;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--irctc-red), var(--primary-color));
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 8px 25px rgba(237, 28, 36, 0.4);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .search-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .search-btn:hover::before { left: 100%; }
+
+        .search-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(237, 28, 36, 0.5);
+        }
+
+        /* ========== TRAIN RESULTS SECTION ========== */
+        .train-results-section {
+            display: none;
+            background: var(--bg-light);
+            padding: 60px 20px 40px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .train-results-section.active { display: block; }
+
+        .results-header {
+            max-width: 1200px;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .results-title {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .route-info-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 12px 24px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .filter-bar {
+            max-width: 1200px;
+            margin: 0 auto 25px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 10px 18px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-chip:hover,
+        .filter-chip.active {
+            border-color: var(--irctc-red);
+            background: var(--irctc-red);
+            color: white;
+        }
+
+        .trains-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .train-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+            animation: slideInRight 0.6s ease-out backwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .train-card:nth-child(1) { animation-delay: 0.1s; }
+        .train-card:nth-child(2) { animation-delay: 0.2s; }
+        .train-card:nth-child(3) { animation-delay: 0.3s; }
+        .train-card:nth-child(4) { animation-delay: 0.4s; }
+        .train-card:nth-child(5) { animation-delay: 0.5s; }
+
+        .train-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .train-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--irctc-red), var(--accent-color));
+        }
+
+        .train-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .train-name-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .train-number {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, var(--irctc-red), var(--primary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .train-info h3 {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .train-days {
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .train-class-badge {
+            background: linear-gradient(135deg, var(--accent-color), #f97316);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .train-timeline {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px 0;
+        }
+
+        .timeline-point { text-align: center; }
+
+        .time-display {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .station-display {
+            font-size: 1rem;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .date-small {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .journey-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .duration-badge {
+            background: var(--bg-light);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .train-icon-journey {
+            color: var(--irctc-red);
+            font-size: 1.5rem;
+        }
+
+        .train-features {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .feature-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: var(--bg-light);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .feature-tag i { color: var(--irctc-red); }
+
+        .train-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 2px solid #f3f4f6;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .seat-availability {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .seats-count {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
+        .seats-label {
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+
+        .price-book-section {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .price-box {
+            text-align: right;
+        }
+
+        .price-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .price-label {
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+
+        .book-now-btn {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .book-now-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        /* ========== OFFERS SECTION ========== */
+        .offers-section {
+            padding: 80px 20px;
+            background: var(--bg-light);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--irctc-red), var(--accent-color));
+            border-radius: 2px;
+        }
+
+        .section-subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
+
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .offer-card {
+            position: relative;
+            height: 260px;
+            border-radius: 22px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            animation: fadeInUp 0.8s ease-out backwards;
+        }
+
+        .offer-card:nth-child(1) { animation-delay: 0.1s; }
+        .offer-card:nth-child(2) { animation-delay: 0.2s; }
+        .offer-card:nth-child(3) { animation-delay: 0.3s; }
+        .offer-card:nth-child(4) { animation-delay: 0.4s; }
+        .offer-card:nth-child(5) { animation-delay: 0.5s; }
+        .offer-card:nth-child(6) { animation-delay: 0.6s; }
+
+        .offer-card-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.6s ease;
+        }
+
+        .offer-card:hover .offer-card-bg { transform: scale(1.1); }
+
+        .offer-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.88) 100%);
+        }
+
+        .offer-card-content {
+            position: relative;
+            height: 100%;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            color: white;
+            z-index: 1;
+        }
+
+        .offer-tag {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            background: linear-gradient(135deg, var(--accent-color), #f97316);
+            color: white;
+            padding: 7px 18px;
+            border-radius: 18px;
+            font-weight: bold;
+            font-size: 0.82rem;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+            z-index: 2;
+        }
+
+        .offer-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            line-height: 1.3;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .coupon-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .coupon-code {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px dashed rgba(255, 255, 255, 0.6);
+            padding: 9px 18px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 1.05rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .coupon-code:hover {
+            background: rgba(255, 255, 255, 0.35);
+            border-style: solid;
+            transform: scale(1.05);
+        }
+
+        .coupon-code.copied {
+            background: var(--success-color);
+            border-color: var(--success-color);
+            animation: bounce 0.5s ease;
+        }
+
+        .copy-hint {
+            position: absolute;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            color: var(--text-dark);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            transition: var(--transition);
+            pointer-events: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .coupon-wrapper:hover .copy-hint {
+            opacity: 1;
+            top: -33px;
+        }
+
+        .offer-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-bg-1 { background-image: url('https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=800'); }
+        .card-bg-2 { background-image: url('https://images.unsplash.com/photo-1530521954074-e64f68101326?w=800'); }
+        .card-bg-3 { background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800'); }
+        .card-bg-4 { background-image: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800'); }
+        .card-bg-5 { background-image: url('https://images.unsplash.com/photo-1510070003415-ce8928e8dfca?w=800'); }
+        .card-bg-6 { background-image: url('https://images.unsplash.com/photo-1464207687429-7505649dae38?w=800'); }
+
+        /* ========== SERVICES SECTION ========== */
+        .services-section {
+            padding: 100px 20px;
+            background: var(--bg-light);
+            position: relative;
+        }
+
+        .services-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(180deg, #7f1d1d, var(--bg-light));
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .service-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out backwards;
+        }
+
+        .service-card:nth-child(1) { animation-delay: 0.1s; }
+        .service-card:nth-child(2) { animation-delay: 0.2s; }
+        .service-card:nth-child(3) { animation-delay: 0.3s; }
+        .service-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--irctc-red), var(--accent-color));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover::before { transform: scaleX(1); }
+
+        .service-icon {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--bg-light), #fee2e2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 2.5rem;
+            color: var(--irctc-red);
+            transition: var(--transition);
+            box-shadow: 0 8px 20px rgba(237, 28, 36, 0.15);
+        }
+
+        .service-card:hover .service-icon {
+            transform: scale(1.15) rotate(5deg);
+            background: linear-gradient(135deg, var(--irctc-red), var(--primary-color));
+            color: white;
+            box-shadow: 0 12px 30px rgba(237, 28, 36, 0.3);
+        }
+
+        .service-card h3 {
+            color: var(--text-dark);
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .service-card p {
+            color: #6b7280;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ========== MODAL SYSTEM ========== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .auth-modal {
+            background: white;
+            border-radius: 30px;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s ease;
+            overflow: hidden;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .auth-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-close-dark {
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close-dark:hover {
+            background: #f3f4f6;
+            color: var(--primary-color);
+            transform: rotate(90deg);
+        }
+
+        .back-btn-modal {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .back-btn-modal:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-3px);
+        }
+
+        /* Login Modal Header */
+        .modal-header-login {
+            background: linear-gradient(135deg, var(--irctc-red), var(--primary-color));
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .irctc-logo-modal {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .modal-header-login h2 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .modal-header-login p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .auth-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 40px 35px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            z-index: 1;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+            background: #f9fafb;
+        }
+
+        .login-input:focus {
+            border-color: var(--irctc-red);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(237, 28, 36, 0.1);
+        }
+
+        .input-group:focus-within i { color: var(--irctc-red); }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #4b5563;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--irctc-red);
+        }
+
+        .forgot-link {
+            color: var(--irctc-red);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+            color: var(--secondary-color);
+        }
+
+        .submit-auth-btn {
+            width: 100%;
+            padding: 17px;
+            background: linear-gradient(135deg, var(--irctc-red), var(--primary-color));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 8px 25px rgba(237, 28, 36, 0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-auth-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .submit-auth-btn:hover::before { transform: translateX(100%); }
+
+        .submit-auth-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(237, 28, 36, 0.45);
+        }
+
+        .divider-text {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin: 20px 0;
+        }
+
+        .divider-text::before,
+        .divider-text::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .social-btn:hover {
+            border-color: var(--irctc-red);
+            background: #fef2f2;
+            transform: translateY(-2px);
+        }
+
+        .social-btn.google { color: #db4437; }
+        .social-btn.aadhaar { color: #2d3748; }
+
+        .switch-auth-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        .switch-auth-text a {
+            color: var(--irctc-red);
+            text-decoration: none;
+            font-weight: bold;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .switch-auth-text a:hover {
+            text-decoration: underline;
+        }
+
+        .success-msg-box {
+            display: none;
+            background: #ecfdf5;
+            border: 2px solid var(--success-color);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            color: var(--success-color);
+            margin-top: 15px;
+            animation: bounce 0.5s ease;
+        }
+
+        .success-msg-box.show { display: block; }
+
+        /* Service Modal */
+        .service-modal {
+            background: white;
+            border-radius: 30px;
+            max-width: 550px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s ease;
+            overflow: hidden;
+        }
+
+        .modal-overlay.active .service-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .service-modal-header {
+            background: linear-gradient(135deg, var(--irctc-red), var(--primary-color));
+            padding: 35px 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .service-modal-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 2.5rem;
+        }
+
+        .service-modal-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .service-modal-body {
+            padding: 35px 30px;
+        }
+
+        .service-input-group {
+            margin-bottom: 20px;
+        }
+
+        .service-input-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .service-input-field {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .service-input-field:focus {
+            border-color: var(--irctc-red);
+            box-shadow: 0 0 0 4px rgba(237, 28, 36, 0.1);
+        }
+
+        .service-submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--irctc-red), var(--primary-color));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 8px 25px rgba(237, 28, 36, 0.35);
+        }
+
+        .service-submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(237, 28, 36, 0.45);
+        }
+
+        /* Claim Modal */
+        .claim-modal {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 520px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .claim-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .claim-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .claim-gift-icon {
+            width: 75px;
+            height: 75px;
+            background: linear-gradient(135deg, var(--accent-color), #f97316);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 2.3rem;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .claim-header h2 {
+            font-size: 1.7rem;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+
+        .claim-header p {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        .claim-coupon-display {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            border: 3px dashed var(--accent-color);
+        }
+
+        .claim-coupon-large {
+            font-size: 1.9rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            letter-spacing: 4px;
+            font-family: monospace;
+        }
+
+        .claim-steps-list {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .claim-steps-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 16px;
+            padding: 14px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            transition: var(--transition);
+        }
+
+        .claim-steps-list li:hover {
+            background: #fee2e2;
+            transform: translateX(5px);
+        }
+
+        .step-num {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, var(--irctc-red), var(--primary-color));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-desc {
+            color: var(--text-dark);
+            line-height: 1.5;
+            font-size: 0.93rem;
+        }
+
+        .claim-close-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .claim-close-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: white;
+            padding: 18px 24px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 3000;
+            animation: toastSlide 3s ease forwards;
+            border-left: 5px solid var(--success-color);
+            min-width: 300px;
+        }
+
+        .toast-icon-box {
+            width: 42px;
+            height: 42px;
+            background: var(--success-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .toast-content h4 {
+            color: var(--text-dark);
+            font-size: 1rem;
+            margin-bottom: 3px;
+        }
+
+        .toast-content p {
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, var(--secondary-color), #450a0a);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        .footer p {
+            max-width: 850px;
+            margin: 0 auto;
+            line-height: 1.8;
+            opacity: 0.95;
+            font-size: 1.02rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .header { padding: 12px 25px; }
+            .nav-links { gap: 18px; }
+            .search-container { padding: 35px 28px; }
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 12px 20px; }
+            .header-content { flex-direction: column; gap: 12px; }
+            .nav-links { flex-wrap: wrap; justify-content: center; gap: 10px; }
+            .hero-section { min-height: 350px; }
+            .hero-content { padding: 40px 15px; }
+            .search-container { padding: 28px 22px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .services-section { padding: 70px 15px; }
+            .services-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px; }
+            .auth-modal, .service-modal { margin: 10px; }
+            .modal-body { padding: 30px 24px; }
+            
+            .train-header { flex-direction: column; }
+            .train-timeline { grid-template-columns: 1fr; gap: 15px; }
+            .journey-details { flex-direction: row; padding: 0; }
+            .train-footer { flex-direction: column; align-items: stretch; }
+            .price-book-section { justify-content: space-between; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 0; }
+            .logo { font-size: 1.5rem; }
+            .hero-title { font-size: 2rem; }
+            .hero-subtitle { font-size: 0.95rem; }
+            .irctc-badge { font-size: 0.9rem; padding: 10px 18px; }
+            .search-container { padding: 22px 18px; border-radius: 20px; }
+            .form-input { padding: 14px 16px; }
+            .search-btn { padding: 16px; font-size: 1.05rem; }
+            .service-card { padding: 28px 20px; }
+            .service-icon { width: 75px; height: 75px; font-size: 2rem; }
+            .modal-header-login { padding: 30px 20px; }
+            .modal-header-login h2 { font-size: 1.5rem; }
+            .social-buttons { flex-direction: column; }
+            
+            .time-display { font-size: 1.4rem; }
+            .price-amount { font-size: 1.5rem; }
+            .book-now-btn { padding: 12px 24px; font-size: 0.95rem; }
+            .offer-card { height: 230px; }
+            .offers-grid { grid-template-columns: 1fr; }
+        }
+
+        html { scroll-behavior: smooth; }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Page Loader -->
+    <div class="page-loader" id="pageLoader">
+        <i class="fas fa-train loader-train"></i>
+        <div class="loader-text">Loading TrainNexa...</div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <i class="fas fa-train"></i> TrainNexa
+            </a>
+            <ul class="nav-links">
+                <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="#services"><i class="fas fa-concierge-bell"></i> Services</a></li>
+                <li><a href="#offers"><i class="fas fa-tags"></i> Offers</a></li>
+                <li><a href="#" onclick="openModal('login')"><i class="fas fa-user-circle"></i> IRCTC Login</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="homeSection">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-star"></i> India's Most Trusted Platform
+            </div>
+            <h1 class="hero-title">Welcome to TrainNexa</h1>
+            <p class="hero-subtitle">India's No.1 Train Booking Service & Largest Railway Network</p>
+            <div class="irctc-badge">
+                <i class="fas fa-shield-alt"></i> Official IRCTC Authorized Partner
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Form Section -->
+    <section class="search-section">
+        <div class="search-container">
+            <form autocomplete="on" id="trainSearchForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="fromStation">
+                            <i class="fas fa-map-marker-alt"></i> From Station
+                        </label>
+                        <input type="text" class="form-input" id="fromStation" placeholder="Enter departure station" list="stations" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="toStation">
+                            <i class="fas fa-map-marker-alt"></i> To Station
+                        </label>
+                        <input type="text" class="form-input" id="toStation" placeholder="Enter destination station" list="stations" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="journeyDate">
+                            <i class="fas fa-calendar-alt"></i> Journey Date
+                        </label>
+                        <input type="date" class="form-input" id="journeyDate" required>
+                    </div>
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i> Search Trains
+                    </button>
+                </div>
+                <datalist id="stations">
+                    <option value="Secunderabad">
+                    <option value="Lingampalli">
+                    <option value="Kacheguda">
+                    <option value="Warangal">
+                    <option value="Guntur">
+                    <option value="Vijayawada">
+                    <option value="Tenali">
+                    <option value="Chirala">
+                    <option value="Ongole">
+                    <option value="Nellore">
+                    <option value="Tirupati">
+                    <option value="Chennai">
+                    <option value="Visakhapatnam">
+                    <option value="Rajahmundry">
+                </datalist>
+            </form>
+        </div>
+    </section>
+
+    <!-- Train Results Section -->
+    <section class="train-results-section" id="trainResultsSection">
+        <div class="results-header">
+            <h2 class="results-title"><i class="fas fa-train"></i> Available Trains</h2>
+            <div class="route-info-badge" id="routeInfoBadge">
+                <i class="fas fa-route"></i>
+                <span id="routeTextDisplay">Route info</span>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <button class="filter-chip active"><i class="fas fa-sort"></i> Recommended</button>
+            <button class="filter-chip"><i class="fas fa-dollar-sign"></i> Price: Low-High</button>
+            <button class="filter-chip"><i class="fas fa-clock"></i> Departure Early-Late</button>
+            <button class="filter-chip"><i class="fas fa-bolt"></i> Fastest First</button>
+        </div>
+
+        <div class="trains-grid" id="trainsGridContainer">
+            <!-- Trains will be dynamically inserted here -->
+        </div>
+    </section>
+
+    <!-- Offers Section -->
+    <section class="offers-section" id="offers">
+        <div class="section-header">
+            <h2 class="section-title">Special Offers & Deals</h2>
+            <p class="section-subtitle">Click on coupon codes to copy & claim amazing discounts!</p>
+        </div>
+
+        <div class="offers-grid">
+            <div class="offer-card" data-coupon="TRAIN50" data-offer="Save up to 50% on First Train Booking" data-steps='["Copy the coupon code TRAIN50", "Search and select your train", "Apply coupon at payment page", "Get instant 50% discount on first booking", "Valid only for new users"]'>
+                <div class="offer-card-bg card-bg-1"></div>
+                <div class="offer-card-overlay"></div>
+                <div class="offer-card-content">
+                    <span class="offer-tag">🚆 Train</span>
+                    <h3>Save up to 50% on First Train Booking</h3>
+                    <div class="coupon-wrapper">
+                        <span class="copy-hint"><i class="fas fa-hand-pointer"></i> Click to Copy!</span>
+                        <span class="coupon-code">TRAIN50</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="offer-card" data-coupon="WEEKEND25" data-offer="Weekend Special: 25% Off All Trains" data-steps='["Copy the coupon code WEEKEND25", "Plan your trip for Friday-Sunday", "Search trains for weekend dates", "Paste coupon in apply field", "Valid only on Fri-Sat-Sun bookings"]'>
+                <div class="offer-card-bg card-bg-2"></div>
+                <div class="offer-card-overlay"></div>
+                <div class="offer-card-content">
+                    <span class="offer-tag">🎉 Weekend</span>
+                    <h3>Weekend Special: 25% Off All Trains</h3>
+                    <div class="coupon-wrapper">
+                        <span class="copy-hint"><i class="fas fa-hand-pointer"></i> Click to Copy!</span>
+                        <span class="coupon-code">WEEKEND25</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="offer-card" data-coupon="SENIOR30" data-offer="Senior Citizens Get 30% Discount" data-steps='["Copy the coupon code SENIOR30", "Verify age (60+ years) during booking", "Select any train and class", "Apply coupon before payment", "Carry valid ID proof while traveling"]'>
+                <div class="offer-card-bg card-bg-3"></div>
+                <div class="offer-card-overlay"></div>
+                <div class="offer-card-content">
+                    <span class="offer-tag">👴 Senior</span>
+                    <h3>Senior Citizens Get 30% Discount</h3>
+                    <div class="coupon-wrapper">
+                        <span class="copy-hint"><i class="fas fa-hand-pointer"></i> Click to Copy!</span>
+                        <span class="coupon-code">SENIOR30</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="offer-card" data-coupon="TATKAL20" data-offer="Tatkal Booking 20% Cashback" data-steps='["Copy the coupon code TATKAL20", "Book Tatkal ticket (1 day before)", "Apply coupon at checkout", "Get 20% cashback to wallet", "Use cashback for future bookings"]'>
+                <div class="offer-card-bg card-bg-4"></div>
+                <div class="offer-card-overlay"></div>
+                <div class="offer-card-content">
+                    <span class="offer-tag">⚡ Tatkal</span>
+                    <h3>Tatkal Booking 20% Cashback</h3>
+                    <div class="coupon-wrapper">
+                        <span class="copy-hint"><i class="fas fa-hand-pointer"></i> Click to Copy!</span>
+                        <span class="coupon-code">TATKAL20</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="offer-card" data-coupon="GROUP15" data-offer="Group Travel 15% Extra Off" data-steps='["Copy the coupon code GROUP15", "Book tickets for 6+ passengers together", "Apply coupon at group discount section", "Get additional 15% off total fare", "All passengers must travel together"]'>
+                <div class="offer-card-bg card-bg-5"></div>
+                <div class="offer-card-overlay"></div>
+                <div class="offer-card-content">
+                    <span class="offer-tag">👥 Group</span>
+                    <h3>Group Travel 15% Extra Off</h3>
+                    <div class="coupon-wrapper">
+                        <span class="copy-hint"><i class="fas fa-hand-pointer"></i> Click to Copy!</span>
+                        <span class="coupon-code">GROUP15</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="offer-card" data-coupon="RETURN10" data-offer="Round Trip Save Extra 10%" data-steps='["Copy the coupon code RETURN10", "Book both onward and return tickets", "Apply coupon on return journey", "Save extra 10% on return ticket", "Valid for same route round trips"]'>
+                <div class="offer-card-bg card-bg-6"></div>
+                <div class="offer-card-overlay"></div>
+                <div class="offer-card-content">
+                    <span class="offer-tag">↩️ Return</span>
+                    <h3>Round Trip Save Extra 10%</h3>
+                    <div class="coupon-wrapper">
+                        <span class="copy-hint"><i class="fas fa-hand-pointer"></i> Click to Copy!</span>
+                        <span class="coupon-code">RETURN10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-section" id="services">
+        <div class="section-header">
+            <h2 class="section-title">Our Services</h2>
+            <p class="section-subtitle">Everything you need for a seamless train journey</p>
+        </div>
+
+        <div class="services-grid">
+            <div class="service-card reveal" onclick="openServiceModal('pnr')">
+                <div class="service-icon"><i class="fas fa-ticket-alt"></i></div>
+                <h3>Check PNR Status</h3>
+                <p>Track your reservation status in real-time with instant updates</p>
+            </div>
+
+            <div class="service-card reveal" onclick="openServiceModal('live')">
+                <div class="service-icon"><i class="fas fa-train"></i></div>
+                <h3>Live Train Status</h3>
+                <p>Get real-time location and delay information for your train</p>
+            </div>
+
+            <div class="service-card reveal" onclick="openServiceModal('food')">
+                <div class="service-icon"><i class="fas fa-utensils"></i></div>
+                <h3>Order Food</h3>
+                <p>Delicious meals delivered to your seat from quality restaurants</p>
+            </div>
+
+            <div class="service-card reveal" onclick="openServiceModal('support')">
+                <div class="service-icon"><i class="fas fa-headset"></i></div>
+                <h3>Customer Service</h3>
+                <p>24/7 support for all your queries and travel assistance</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>
+            TrainNexa is India's premier train booking platform, offering seamless ticket reservations, 
+            real-time tracking, and exceptional customer service. As an authorized IRCTC partner, we ensure 
+            secure transactions and reliable service for millions of travelers across India's largest railway network.
+        </p>
+    </footer>
+
+    <!-- ==================== LOGIN MODAL ==================== -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="auth-modal">
+            <div class="modal-header-login">
+                <button class="modal-close" onclick="closeModal('login')"><i class="fas fa-times"></i></button>
+                <div class="irctc-logo-modal"><i class="fas fa-shield-alt"></i></div>
+                <h2>IRCTC Authorization</h2>
+                <p>Login with your official IRCTC account</p>
+                <div class="auth-badge"><i class="fas fa-check-circle"></i> Verified & Secure</div>
+            </div>
+            <div class="modal-body">
+                <form class="auth-form" onsubmit="handleLogin(event)">
+                    <div class="input-group">
+                        <input type="text" class="login-input" placeholder="IRCTC Username / Mobile Number" required>
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" class="login-input" placeholder="Password" required>
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox"> Remember me
+                        </label>
+                        <a class="forgot-link" onclick="switchModal('login', 'forgot')">Forgot Password?</a>
+                    </div>
+                    <button type="submit" class="submit-auth-btn"><i class="fas fa-sign-in-alt"></i> Authorize & Login</button>
+                    <div class="divider-text">or continue with</div>
+                    <div class="social-buttons">
+                        <button type="button" class="social-btn google"><i class="fab fa-google"></i> Google</button>
+                        <button type="button" class="social-btn aadhaar"><i class="fas fa-fingerprint"></i> Aadhaar</button>
+                    </div>
+                    <p class="switch-auth-text">
+                        Don't have an IRCTC account? <a onclick="switchModal('login', 'signup')">Register Now</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SIGNUP MODAL ==================== -->
+    <div class="modal-overlay" id="signupModal">
+        <div class="auth-modal">
+            <div class="modal-header-login">
+                <button class="modal-close" onclick="closeModal('signup')"><i class="fas fa-times"></i></button>
+                <button class="back-btn-modal" onclick="switchModal('signup', 'login')"><i class="fas fa-arrow-left"></i></button>
+                <div class="irctc-logo-modal"><i class="fas fa-user-plus"></i></div>
+                <h2>Create IRCTC Account</h2>
+                <p>Join India's largest railway network</p>
+            </div>
+            <div class="modal-body">
+                <form class="auth-form" onsubmit="handleSignup(event)">
+                    <div class="input-group">
+                        <input type="text" class="login-input" placeholder="Full Name" required>
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="input-group">
+                        <input type="email" class="login-input" placeholder="Email Address" required>
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="input-group">
+                        <input type="tel" class="login-input" placeholder="Mobile Number (10 digits)" pattern="[0-9]{10}" required>
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" class="login-input" placeholder="Create Password (min 8 chars)" minlength="8" required>
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" class="login-input" placeholder="Confirm Password" required>
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <button type="submit" class="submit-auth-btn"><i class="fas fa-user-plus"></i> Create Account</button>
+                    <div class="divider-text">or sign up with</div>
+                    <div class="social-buttons">
+                        <button type="button" class="social-btn google"><i class="fab fa-google"></i> Google</button>
+                        <button type="button" class="social-btn aadhaar"><i class="fas fa-fingerprint"></i> Aadhaar</button>
+                    </div>
+                    <p class="switch-auth-text">
+                        Already have an account? <a onclick="switchModal('signup', 'login')">Sign In Here</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== FORGOT PASSWORD MODAL ==================== -->
+    <div class="modal-overlay" id="forgotModal">
+        <div class="auth-modal">
+            <div class="modal-header-login">
+                <button class="modal-close" onclick="closeModal('forgot')"><i class="fas fa-times"></i></button>
+                <button class="back-btn-modal" onclick="switchModal('forgot', 'login')"><i class="fas fa-arrow-left"></i></button>
+                <div class="irctc-logo-modal"><i class="fas fa-key"></i></div>
+                <h2>Reset Password</h2>
+                <p>We'll send you a reset link via email</p>
+            </div>
+            <div class="modal-body">
+                <form class="auth-form" onsubmit="handleForgotPassword(event)">
+                    <div class="input-group">
+                        <input type="email" class="login-input" id="forgotEmailInput" placeholder="Registered Email Address" required>
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <button type="submit" class="submit-auth-btn"><i class="fas fa-paper-plane"></i> Send Reset Link</button>
+                    <div class="success-msg-box" id="forgotSuccessBox">
+                        <i class="fas fa-check-circle"></i> Reset link sent successfully! Please check your email inbox.
+                    </div>
+                    <p class="switch-auth-text">
+                        Remember your password? <a onclick="switchModal('forgot', 'login')">Back to Login</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SERVICE MODALS ==================== -->
+
+    <!-- PNR Status Modal -->
+    <div class="modal-overlay" id="pnrServiceModal">
+        <div class="service-modal">
+            <div class="service-modal-header">
+                <button class="modal-close" onclick="closeModal('pnrService')"><i class="fas fa-times"></i></button>
+                <div class="service-modal-icon"><i class="fas fa-ticket-alt"></i></div>
+                <h2>Check PNR Status</h2>
+                <p>Enter your 10-digit PNR number</p>
+            </div>
+            <div class="service-modal-body">
+                <form onsubmit="handlePNRCheck(event)">
+                    <div class="service-input-group">
+                        <label>PNR Number</label>
+                        <input type="text" class="service-input-field" placeholder="Enter 10-digit PNR number" maxlength="10" pattern="[0-9]{10}" required>
+                    </div>
+                    <button type="submit" class="service-submit-btn"><i class="fas fa-search"></i> Check Status</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Train Status Modal -->
+    <div class="modal-overlay" id="liveServiceModal">
+        <div class="service-modal">
+            <div class="service-modal-header">
+                <button class="modal-close" onclick="closeModal('liveService')"><i class="fas fa-times"></i></button>
+                <div class="service-modal-icon"><i class="fas fa-train"></i></div>
+                <h2>Live Train Status</h2>
+                <p>Track your train in real-time</p>
+            </div>
+            <div class="service-modal-body">
+                <form onsubmit="handleLiveStatus(event)">
+                    <div class="service-input-group">
+                        <label>Train Number</label>
+                        <input type="text" class="service-input-field" placeholder="e.g., 12805" required>
+                    </div>
+                    <div class="service-input-group">
+                        <label>Journey Date</label>
+                        <input type="date" class="service-input-field" required>
+                    </div>
+                    <button type="submit" class="service-submit-btn"><i class="fas fa-location-arrow"></i> Track Train</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Food Modal -->
+    <div class="modal-overlay" id="foodServiceModal">
+        <div class="service-modal">
+            <div class="service-modal-header">
+                <button class="modal-close" onclick="closeModal('foodService')"><i class="fas fa-times"></i></button>
+                <div class="service-modal-icon"><i class="fas fa-utensils"></i></div>
+                <h2>Order Food Onboard</h2>
+                <p>Delicious meals delivered to your berth</p>
+            </div>
+            <div class="service-modal-body">
+                <form onsubmit="handleFoodOrder(event)">
+                    <div class="service-input-group">
+                        <label>PNR / Train Number</label>
+                        <input type="text" class="service-input-field" placeholder="Enter PNR or Train No." required>
+                    </div>
+                    <div class="service-input-group">
+                        <label>Berth / Seat Number</label>
+                        <input type="text" class="service-input-field" placeholder="e.g., B1, 45" required>
+                    </div>
+                    <div class="service-input-group">
+                        <label>Select Cuisine</label>
+                        <select class="service-input-field" required>
+                            <option value="">Choose cuisine type</option>
+                            <option value="veg">🥗 Vegetarian Thali</option>
+                            <option value="nonveg">🍗 Non-Veg Meal</option>
+                            <option value="chinese">🍜 Chinese Combo</option>
+                            <option value="south">🍛 South Indian Meals</option>
+                            <option value="snacks">🍿 Snacks & Beverages</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="service-submit-btn"><i class="fas fa-shopping-cart"></i> View Menu & Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Support Modal -->
+    <div class="modal-overlay" id="supportServiceModal">
+        <div class="service-modal">
+            <div class="service-modal-header">
+                <button class="modal-close" onclick="closeModal('supportService')"><i class="fas fa-times"></i></button>
+                <div class="service-modal-icon"><i class="fas fa-headset"></i></div>
+                <h2>Customer Support</h2>
+                <p>We're here to help you 24/7</p>
+            </div>
+            <div class="service-modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div style="background: var(--bg-light); padding: 20px; border-radius: 15px; text-align: center;">
+                        <i class="fas fa-phone-alt" style="font-size: 2rem; color: var(--irctc-red); margin-bottom: 10px;"></i>
+                        <h4 style="margin-bottom: 5px;">Call Us</h4>
+                        <p style="font-weight: bold; color: var(--text-dark);">1800-XXX-XXXX</p>
+                        <small style="color: #6b7280;">24/7 Helpline</small>
+                    </div>
+                    <div style="background: var(--bg-light); padding: 20px; border-radius: 15px; text-align: center;">
+                        <i class="fab fa-whatsapp" style="font-size: 2rem; color: #25D366; margin-bottom: 10px;"></i>
+                        <h4 style="margin-bottom: 5px;">WhatsApp</h4>
+                        <p style="font-weight: bold; color: var(--text-dark);">+91 XXXXX XXXXX</p>
+                        <small style="color: #6b7280;">Quick replies</small>
+                    </div>
+                    <div style="background: var(--bg-light); padding: 20px; border-radius: 15px; text-align: center;">
+                        <i class="fas fa-envelope" style="font-size: 2rem; color: var(--info-color); margin-bottom: 10px;"></i>
+                        <h4 style="margin-bottom: 5px;">Email Us</h4>
+                        <p style="font-weight: bold; color: var(--text-dark);">support@trainnexa.com</p>
+                        <small style="color: #6b7280;">Response in 2hrs</small>
+                    </div>
+                    <div style="background: var(--bg-light); padding: 20px; border-radius: 15px; text-align: center;">
+                        <i class="fas fa-comments" style="font-size: 2rem; color: var(--accent-color); margin-bottom: 10px;"></i>
+                        <h4 style="margin-bottom: 5px;">Live Chat</h4>
+                        <p style="font-weight: bold; color: var(--text-dark);">Available Now</p>
+                        <small style="color: #6b7280;">Avg wait: 2 mins</small>
+                    </div>
+                </div>
+                <form onsubmit="handleSupportTicket(event)">
+                    <div class="service-input-group">
+                        <label>Raise a Ticket</label>
+                        <textarea class="service-input-field" rows="4" placeholder="Describe your issue or query..." required style="resize: vertical;"></textarea>
+                    </div>
+                    <button type="submit" class="service-submit-btn"><i class="fas fa-paper-plane"></i> Submit Ticket</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== CLAIM COUPON MODAL ==================== -->
+    <div class="modal-overlay" id="claimModal">
+        <div class="claim-modal">
+            <button class="modal-close-dark" onclick="closeModal('claim')"><i class="fas fa-times"></i></button>
+            <div class="claim-header">
+                <div class="claim-gift-icon"><i class="fas fa-gift"></i></div>
+                <h2 id="claimTitleText">Offer Claimed!</h2>
+                <p>Your coupon is ready to use</p>
+            </div>
+            <div class="claim-coupon-display">
+                <div class="claim-coupon-large" id="claimCouponLarge">CODE123</div>
+            </div>
+            <ul class="claim-steps-list" id="claimStepsList">
+                <!-- Steps inserted dynamically -->
+            </ul>
+            <button class="claim-close-btn" onclick="closeModal('claim')">
+                <i class="fas fa-check"></i> Got It, Let's Book!
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // ===================== PAGE LOADER =====================
+        window.addEventListener('load', () => {
+            setTimeout(() => document.getElementById('pageLoader').classList.add('hidden'), 1200);
+        });
+
+        // ===================== MODAL SYSTEM =====================
+        function openModal(type) {
+            const modal = document.getElementById(type + 'Modal');
+            if(modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(type) {
+            const modal = document.getElementById(type + 'Modal');
+            if(modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function switchModal(from, to) {
+            closeModal(from);
+            setTimeout(() => openModal(to), 300);
+        }
+
+        // Close modals on outside click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if(e.target === overlay) {
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+
+        // Close with Escape key
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(m => {
+                    m.classList.remove('active');
+                });
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // ===================== AUTH HANDLERS =====================
+        function handleLogin(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('.submit-auth-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                showToast('success', 'Login Successful!', 'Welcome back to TrainNexa 🚂');
+                closeModal('login');
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Authorize & Login';
+                btn.disabled = false;
+                e.target.reset();
+            }, 2500);
+        }
+
+        function handleSignup(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('.submit-auth-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                showToast('success', 'Account Created!', 'IRCTC registration successful! Please login.');
+                closeModal('signup');
+                setTimeout(() => openModal('login'), 500);
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+                btn.disabled = false;
+                e.target.reset();
+            }, 2000);
+        }
+
+        function handleForgotPassword(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('.submit-auth-btn');
+            const successBox = document.getElementById('forgotSuccessBox');
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                successBox.classList.add('show');
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Link';
+                btn.disabled = false;
+                
+                showToast('success', 'Email Sent!', `Reset link sent to ${document.getElementById('forgotEmailInput').value}`);
+            }, 1500);
+        }
+
+        // ===================== TRAIN SEARCH WITH RESULTS =====================
+        const trainData = [
+            {
+                name: "Rajdhani Express",
+                number: "12804",
+                days: "Runs Daily",
+                depTime: "06:00 AM",
+                arrTime: "01:30 PM",
+                duration: "7h 30m",
+                classType: "1A | 2A | 3A",
+                features: ["WiFi", "Pantry Car", "AC", "Catering"],
+                seatsLeft: 45,
+                price: 2450
+            },
+            {
+                name: "Charminar Express",
+                number: "12759",
+                days: "Mon, Wed, Fri",
+                depTime: "07:15 AM",
+                arrTime: "02:45 PM",
+                duration: "7h 30m",
+                classType: "SL | 3A | 2A",
+                features: ["Pantry Car", "Charging Points", "Clean Toilets"],
+                seatsLeft: 128,
+                price: 1850
+            },
+            {
+                name: "Godavari Express",
+                number: "12703",
+                days: "Runs Daily",
+                depTime: "09:00 AM",
+                arrTime: "04:30 PM",
+                duration: "7h 30m",
+                classType: "SL | 3A",
+                features: ["Pantry Car", "Security", "Blankets"],
+                seatsLeft: 210,
+                price: 1250
+            },
+            {
+                name: "Pinakini Express",
+                number: "12711",
+                days: "Runs Daily",
+                depTime: "11:30 AM",
+                arrTime: "07:15 PM",
+                duration: "7h 45m",
+                classType: "CC | 2S | SL",
+                features: ["Chair Car", "Snacks Available"],
+                seatsLeft: 320,
+                price: 650
+            },
+            {
+                name: "Falaknuma Express",
+                number: "12703",
+                days: "Tue, Thu, Sat",
+                depTime: "14:00 PM",
+                arrTime: "09:45 PM",
+                duration: "7h 45m",
+                classType: "SL | 3A | 2A | 1A",
+                features: ["AC", "Pantry", "Premium Service"],
+                seatsLeft: 78,
+                price: 2150
+            }
+        ];
+
+        document.getElementById('trainSearchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const from = document.getElementById('fromStation').value;
+            const to = document.getElementById('toStation').value;
+            const date = document.getElementById('journeyDate').value;
+
+            if(!from || !to || !date) return;
+
+            const btn = this.querySelector('.search-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching Trains...';
+            btn.disabled = true;
+
+            document.getElementById('routeTextDisplay').textContent = `${from} → ${to} • ${formatDate(date)}`;
+
+            setTimeout(() => {
+                renderTrains();
+                document.getElementById('trainResultsSection').classList.add('active');
+                document.getElementById('trainResultsSection').scrollIntoView({ behavior: 'smooth' });
+                
+                btn.innerHTML = '<i class="fas fa-search"></i> Search Trains';
+                btn.disabled = false;
+
+                showToast('success', `${trainData.length} Trains Found!`, `Showing available trains from ${from} to ${to}`);
+            }, 2000);
+        });
+
+        function formatDate(dateStr) {
+            return new Date(dateStr).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' });
+        }
+
+        function renderTrains() {
+            const grid = document.getElementById('trainsGridContainer');
+            grid.innerHTML = '';
+
+            trainData.forEach((train, idx) => {
+                const card = document.createElement('div');
+                card.className = 'train-card';
+                card.style.animationDelay = `${idx * 0.12}s`;
+
+                card.innerHTML = `
+                    <div class="train-header">
+                        <div class="train-name-section">
+                            <div class="train-number">${train.number}</div>
+                            <div class="train-info">
+                                <h3>${train.name}</h3>
+                                <div class="train-days"><i class="fas fa-calendar-week"></i> ${train.days}</div>
+                            </div>
+                        </div>
+                        <span class="train-class-badge">${train.classType}</span>
+                    </div>
+
+                    <div class="train-timeline">
+                        <div class="timeline-point">
+                            <div class="time-display">${train.depTime}</div>
+                            <div class="station-display">${document.getElementById('fromStation').value}</div>
+                            <div class="date-small">${formatDate(document.getElementById('journeyDate').value)}</div>
+                        </div>
+                        <div class="journey-details">
+                            <div class="duration-badge">${train.duration}</div>
+                            <i class="fas fa-train train-icon-journey"></i>
+                        </div>
+                        <div class="timeline-point">
+                            <div class="time-display">${train.arrTime}</div>
+                            <div class="station-display">${document.getElementById('toStation').value}</div>
+                            <div class="date-small">${formatDate(document.getElementById('journeyDate').value)}</div>
+                        </div>
+                    </div>
+
+                    <div class="train-features">
+                        ${train.features.map(f => `<span class="feature-tag"><i class="fas fa-check-circle"></i> ${f}</span>`).join('')}
+                    </div>
+
+                    <div class="train-footer">
+                        <div class="seat-availability">
+                            <span class="seats-count"><i class="fas fa-chair"></i> ${train.seatsLeft} Seats Left</span>
+                            <span class="seats-label">Hurry! Filling fast</span>
+                        </div>
+                        <div class="price-book-section">
+                            <div class="price-box">
+                                <div class="price-amount">₹${train.price}</div>
+                                <div class="price-label">per person</div>
+                            </div>
+                            <button class="book-now-btn" onclick="bookTrain('${train.name}', ${train.price})">
+                                <i class="fas fa-ticket-alt"></i> Book Now
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function bookTrain(name, price) {
+            showToast('info', 'Redirecting...', `Proceeding to book ${name} (₹${price})`);
+            setTimeout(() => {
+                alert(`🎫 Booking Page\n\nTrain: ${name}\nPrice: ₹${price}\n\nThis would redirect to seat selection page.`);
+            }, 1000);
+        }
+
+        // Filter chips interaction
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                showToast('info', 'Filter Applied', this.textContent.trim());
+            });
+        });
+
+        // ===================== COUPON COPY SYSTEM =====================
+        document.querySelectorAll('.coupon-code').forEach(codeEl => {
+            codeEl.addEventListener('click', function() {
+                const code = this.textContent.trim();
+                const card = this.closest('.offer-card');
+                const title = card.dataset.offer;
+                const steps = JSON.parse(card.dataset.steps);
+
+                navigator.clipboard.writeText(code).then(() => {
+                    this.classList.add('copied');
+                    this.textContent = 'COPIED!';
+                    
+                    setTimeout(() => {
+                        this.classList.remove('copied');
+                        this.textContent = code;
+                    }, 1500);
+
+                    showToast('success', 'Coupon Copied!', `"${code}" copied to clipboard`);
+
+                    setTimeout(() => openClaimModal(code, title, steps), 800);
+                }).catch(() => {
+                    // Fallback
+                    const ta = document.createElement('textarea');
+                    ta.value = code;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+
+                    showToast('success', 'Coupon Copied!', `"${code}" copied to clipboard`);
+                    setTimeout(() => openClaimModal(code, title, steps), 800);
+                });
+            });
+        });
+
+        function openClaimModal(code, title, steps) {
+            document.getElementById('claimCouponLarge').textContent = code;
+            document.getElementById('claimTitleText').textContent = title;
+
+            const list = document.getElementById('claimStepsList');
+            list.innerHTML = '';
+
+            steps.forEach((step, i) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="step-num">${i + 1}</span><span class="step-desc">${step}</span>`;
+                list.appendChild(li);
+            });
+
+            openModal('claim');
+        }
+
+        // ===================== SERVICE MODALS =====================
+        function openServiceModal(service) {
+            const map = {
+                'pnr': 'pnrService',
+                'live': 'liveService',
+                'food': 'foodService',
+                'support': 'supportService'
+            };
+            openModal(map[service]);
+        }
+
+        function handlePNRCheck(e) {
+            e.preventDefault();
+            const input = e.target.querySelector('input');
+            const pnr = input.value;
+            
+            showToast('info', 'Checking PNR...', `Fetching status for ${pnr}`);
+
+            setTimeout(() => {
+                alert(`🎫 PNR Status Report\n\nPNR Number: ${pnr}\nTrain: Rajdhani Express (12804)\nFrom: New Delhi\nTo: Secunderabad\nDate: ${new Date().toLocaleDateString()}\n\nCoach: B1 | Berth: 45 | Quota: General\n\nCurrent Status: CNF / Confirmed\nChart Prepared: Yes\nBoarding: Secunderabad at 06:00 AM`);
+                closeModal('pnrService');
+            }, 1500);
+        }
+
+        function handleLiveStatus(e) {
+            e.preventDefault();
+            const inputs = e.target.querySelectorAll('input');
+            
+            showToast('info', 'Tracking Train...', `Locating train ${inputs[0].value}`);
+
+            setTimeout(() => {
+                alert(`🚂 Live Train Status\n\nTrain: Godavari Express (${inputs[0].value})\nDate: ${inputs[1].value}\n\nCurrent Location: Warangal Station\nDelay: Running 15 minutes late\nNext Stop: Vijayawada (ETA: 03:45 PM)\nPlatform: 3\nSpeed: 85 km/h\n\nLast Updated: Just now`);
+                closeModal('liveService');
+            }, 1500);
+        }
+
+        function handleFoodOrder(e) {
+            e.preventDefault();
+            const inputs = e.target.querySelectorAll('input, select');
+            const cuisineMap = {
+                'veg': '🥗 Vegetarian Thali',
+                'nonveg': '🍗 Non-Veg Meal',
+                'chinese': '🍜 Chinese Combo',
+                'south': '🍛 South Indian Meals',
+                'snacks': '🍿 Snacks & Beverages'
+            };
+
+            showToast('success', 'Menu Loaded!', `Showing ${cuisineMap[inputs[2].value]} options`);
+
+            setTimeout(() => {
+                alert(`🍽️ Food Ordering\n\nPNR/Train: ${inputs[0].value}\nBerth: ${inputs[1].value}\nCuisine: ${cuisineMap[inputs[2].value]}\n\nAvailable Restaurants:\n1. Bhojanam - Rating ⭐4.5\n2. RailRestro - Rating ⭐4.3\n3. Traveler's Meal - Rating ⭐4.2\n\nDelivery will be at your berth!\nEstimated delivery: 45 mins`);
+                closeModal('foodService');
+            }, 1200);
+        }
+
+        function handleSupportTicket(e) {
+            e.preventDefault();
+            const textarea = e.target.querySelector('textarea');
+
+            showToast('success', 'Ticket Submitted!', 'Our team will contact you shortly.');
+
+            setTimeout(() => {
+                alert(`📞 Support Ticket Created\n\nTicket ID: #TKT-${Math.floor(Math.random()*100000)}\nStatus: Open\nPriority: Normal\n\nOur support team will respond within 2 hours.\nYou can also call us at: 1800-XXX-XXXX\nOr WhatsApp: +91 XXXXX XXXXX`);
+                closeModal('supportService');
+                textarea.value = '';
+            }, 1000);
+        }
+
+        // ===================== TOAST NOTIFICATION =====================
+        function showToast(type, title, message) {
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+            const colors = { success: '#10b981', error: '#ef4444', info: '#3b82f6' };
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.style.borderLeftColor = colors[type];
+            toast.innerHTML = `
+                <div class="toast-icon-box" style="background:${colors[type]}"><i class="fas ${icons[type]}"></i></div>
+                <div class="toast-content"><h4>${title}</h4><p>${message}</p></div>
+            `;
+
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        // ===================== UTILITIES =====================
+        const dateInput = document.getElementById('journeyDate');
+        dateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
+
+        // Scroll Reveal
+        const observerOptions = { threshold: 0.15, rootMargin: '0px 0px -50px 0px' };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Input focus animations
+        document.querySelectorAll('.form-input, .login-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+
+</body>
+</html>
